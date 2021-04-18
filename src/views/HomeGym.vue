@@ -48,7 +48,21 @@
 
           </v-form>
 
-          <h2 class="pa-10" v-else>{{ bookingStatus.message }}</h2>
+          <div class="checked-in d-flex flex-column align-center" v-else>
+            <h2 class="pa-10">{{ bookingStatus.message }}</h2>
+
+            <div class="mb-10">
+              <v-btn
+                tile
+                color="primary"
+                @click="checkout"
+                :loading="loading"
+                :disabled="!valid || loading"
+              >
+                Check Out
+              </v-btn>
+            </div>
+          </div>
         </v-sheet>
       </v-flex>
     </v-layout>
@@ -86,6 +100,21 @@ export default {
         original: this.bookingStatus.original,
         user: this.bookingStatus.user.toUpperCase(),
         pass: this.bookingStatus.pass,
+      }).then(() => {
+        this.getCurrentStatusGym();
+      }).catch((err) => {
+        this.alert = true;
+        this.alertType = 'error';
+        this.alertMessage = err.response.data;
+      }).finally(() => {
+        this.loading = false;
+      });
+    },
+    checkout() {
+      this.loading = true;
+
+      axios.post('/booking/check-out', {
+        bookingDate: this.bookingStatus.bookingDate,
       }).then(() => {
         this.getCurrentStatusGym();
       }).catch((err) => {
